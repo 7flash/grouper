@@ -38,9 +38,7 @@ function getOneGroup (req, res) {
   let groupName = req.params.groupName
   Group.findOne({groupName: groupName})
   .then((group) => {
-    if (group.isVoting === false) {
-      return group
-    } else if (group.votes.length > 20) {
+    if (group.votes.length > 20 || group.endTime < Date.now()) {
       let temp = calculateWinner.calculateWinner(group)
       Group.update({_id: temp._id}, {
         winner: temp.winner,
@@ -49,6 +47,9 @@ function getOneGroup (req, res) {
         if (err) { console.log(err) }
         return data
       })
+    }
+    if (group.isVoting === false) {
+      return group
     } else {
       return group
     }
@@ -58,7 +59,7 @@ function getOneGroup (req, res) {
   })
   .catch((err) => {
     console.error('[Error fetching group]')
-    res.status(501).send('[Error fetching group]', err)
+    res.status(501).send(err)
   })
 }
 
@@ -66,7 +67,6 @@ function addVote (req, res) {
   let groupName = req.params.groupName
   Group.findOne({ groupName: groupName })
   .then((group) => {
-    // console.log('Group inside then', group)
     group.votes.push({
       yelpApiId: req.body.yelpApiId,
       vote: req.body.vote

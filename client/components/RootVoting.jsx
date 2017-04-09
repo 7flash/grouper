@@ -10,33 +10,41 @@ class componentName extends Component {
     super(props)
     this.state = {
       groupName: '',
-      group: undefined
+      group: undefined,
+      link: window.location.href
     }
   }
 
   componentDidMount () {
-    this.setState({ groupName: this.props.location.pathname.slice(8)})
+    // this.setState({ groupName: this.props.location.pathname.slice(8)})
     let groupName = this.props.location.pathname.slice(8)
-    if (sessionStorage.getItem(groupName) === null) {
+    console.log(sessionStorage.getItem('name'))
+    if (sessionStorage.getItem('name') === null) {
       axios.get('/api/groups/' + groupName)
       .then((res) => {
+        console.log(res)
         res.data.index = 0
-        sessionStorage.setItem(groupName, JSON.stringify(res.data))
+        this.setState({
+          group: res.data,
+          groupName: groupName
+        })
+        sessionStorage.setItem('name', groupName)
+        console.log(sessionStorage.getItem('name'))
+        this.forceUpdate()
+        console.log('Force Update Triggered!')
         return res
       })
-      .then((res) => {
-        this.setState({group: JSON.parse(sessionStorage.getItem(groupName))})
-      })
       .catch((err) => {
-        console.error('axios get error', err)
+        console.error(err)
       })
     } else {
-      this.setState({group: JSON.parse(sessionStorage.getItem(groupName))})
+      // this.setState({group: sessionStorage.getItem()})
     }
   }
 
   render () {
-    if (this.state.group === undefined){
+    console.log(sessionStorage.getItem('name'))
+    if (sessionStorage.getItem('name') === null) {
       return (
         <h1>LOADING</h1>
       )
@@ -46,18 +54,14 @@ class componentName extends Component {
           <Router>
             <div>
               <Route path='/voting' render={() => { return <Voting groupName={this.state.groupName} yelpData={this.state.group} /> }} />
-              <Route path='/voting/waiting' render={() => { return <Waiting name={this.state.groupName} /> }} />
-              <Route path='/voting/winner' render={() => { return <Winner name={this.state.groupName} />}} />
+              <Route path='/voting/waiting' render={() => { return <Waiting name={this.state.groupName} link={this.state.link} endTime={this.state.group.endTime} /> }} />
+              <Route path='/voting/winner' render={() => { return <Winner name={this.state.groupName} /> }} />
             </div>
           </Router>
         </div>
       )
     }
   }
-}
-
-componentName.propTypes = {
-
 }
 
 export default componentName
