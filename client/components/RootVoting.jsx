@@ -6,7 +6,7 @@ import Winner from './Winner.jsx'
 import VoterLanding from './VoterLanding.jsx'
 import axios from 'axios'
 
-class componentName extends Component {
+class RootVoting extends Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -67,4 +67,4 @@ class componentName extends Component {
   }
 }
 
-export default componentName
+export default RootVoting
